@@ -1,0 +1,843 @@
+'This is the Purchase Order Master upload. 
+
+'Webpage for upload file layout - http://www.gss-updates.com/site/GShelp/2015/000/INDEX.asp?addl_ref_data_conv_po_master.asp
+'* - Denotes required fields
+
+'You don't have to worry about the filler, I will handle that along with building the file for you. You just need to make sure all of the fields that are being imported 
+'are padded to the size of that field. If no value is to be imported for a field you can ignore that field.
+
+'There are three DataTables, one for A records, one for B/C records, and one for Line Items (### records)
+
+'The program will default to being called as UPLPUROR/U to make it screenless. To have the program called as UPLPUROR/A, set V.Global.bUPLPURORScreenless to False.
+
+'File Layouts
+
+'Record A
+'*Purchase Order Number - 7 characters
+'Reserved Space - 2 Characters ("  ")
+'*Record Type - 1 Character (Always A)
+'*Order Tax Code - 1 Character
+'	E - Exempt
+'	T - Taxable
+'Insurance - 1 Character (Y/N)
+'Buyer Code - 3 Characters (Must be in Buyer table)
+'Area - 2 Characters
+'Branch - 2 Characters
+'Ship Via - 15 Characters (Ups, Air Freight, etc.)
+'FOB Information - 15 Characters (Origin, Destination, etc.)
+'Terms - 12 Characters
+'Work Order Number - 6 Characters
+'Work Order Sequence - 6 Characters 
+'Request Number - 6 Characters 
+'Dept - 4 Characters
+'Special Instructions - Line 1-1 - 30 Characters
+'Special Instructions - Line 1-2 - 30 Characters
+'Special Instructions - Line 1-3 - 30 Characters
+'Closed - 1  Character (Y/N)
+'Sort Code - 20 Characters
+'Ship Code - 1 Character
+'Purchase Order Date - 6 Characters (MMDDYY)
+'Date Required - 6 Characters (MMDDYY)
+'DDue Date - 6 Characters (MMDDYY)
+'Part Paid - 16 Characters (12.2)
+'Normal GL Account - 15 Characters (Only 10 characters can be used at this time)
+'Account Cloused - 1  Character (Y/N)
+'SB Paid - 16 Characters (12.2)
+'Print - 1 Character
+'	Y - PO will Print
+'	X - Can Delete order, record, or none
+'	Blank - Cannot delete, will be closed in receiving process
+'Work Order Suffix - 3 Characters
+'Purchase Order Revision Number - 2 Characters
+'*Vendor Number	- 6 Characters (used for record B, C, and line items.)
+'Certificates Required - 1 Character (Y/N)
+'Tax Code - 5 Characters (Available when order is taxable; must be on Tax Rate File or Group Tax Rate file and comply with VAT rules if VAT is on.)
+'Vat Rule - 2 Characters (Used if using VAT and order is taxable. VAT Rule will come from vendor master if left empty.)
+'Book Use Tax - 1 Character (Y/N)
+'Filler - 6 Characters ("      ")
+'New Text Format - 1 Character (This is a custom field. Enter 'Y' to call the custom program that prints POs in a different format.)
+'Previous Sequence - 2 Characters
+'Change Date - 6 Characters (MMDDYY)
+'Different Due Date - 1 Character (Y/N)
+'User Field 1 - 30 Characters
+'User Field 2 - 30 Characters
+'PO Discount - 16 (1.4)
+'Physical & Chemical Certifications Flag - 1 Character (Y/N)
+'Freight Vendor ID - 6 Characters
+'Custom Vendor ID - 6 Characters
+'Ship Date - 8 Characters (YYYYMMDD)
+'
+'Record B for Vendor Address (from the Vendor Master) or C for Ship-To Address (as specified on PO) 
+'*Purchase Order Number - 7 Characters
+'Filler - 2 Characters ("  ")
+'Record Type - 1 Character (B or C)
+'*Vendor Name - 30 Characters
+'Vendor Address 1 - 30 Characters
+'Vendor Address 2 - 30 Characters
+'Vendor Address 3 - 30 Characters
+'Vendor Address 4 - 30 Characters
+'Vendor Address 5 - 30 Characters
+'Vendor City - 20 Characters
+'Vendor State - 2 Characters
+'Vendor Zip - 13 Characters
+'Vendor Country - 12 Characters
+'Vendor Attention - 30 Characters
+'Special Instructions - Line 2-1 - 20 Characters (B records only. If C record, this should be filler)
+'Special Instructions - Line 2-2 - 20 Characters (B records only. If C record, this should be filler)
+'Special Instructions - Line 2-3 - 20 Characters (B records only. If C record, this should be filler)
+'Filler - 6 Characters
+'Ship-To Sequence - 6 Characters
+'Contact Name - 30 Characters
+'Contact Email - 100 Characters
+'Contact Phone - 20 Characters
+'International Address Flag - 1 Character
+'	Y - International Address
+'	N or Space - Domestic Address
+'
+'Line Items
+'*Purchase Order Number - 7 Characters
+'*Record Type (Line Item) -  3 Characters (001-999, incrementing 1 at a time)
+'*Part Number - 20  Characters
+'Part Location - 2 Characters
+'*Part Description - 30 Characters
+'*PO Unit of Measure - 2 Characters
+'Account Closed - 1 Character (Y/N)
+'Work Order Number - 6 Characters
+'Work Order Sequence - 6 Characters
+'Requisition Number - 6 Characters
+'Department - 4 Characters
+'Tax Status Flag - 1 Character
+'	E - Exempt
+'	T - Taxable
+'Sort Code - 12 Characters
+'GL Account - 15 Characters (Only 10 characters can be used at this time)
+'Inventory Bin - 6 Characters
+'Product Line - 2 Characters
+'Filler - 1 Character (" ")
+'Due Date - 6 Characters (MMDDYY)
+'Last Receipt Date - 6 Characters (MMDDYY)
+'Purchasing Cost - 16 Characters (10.6)
+'Discount - 16 Characters (10.4)
+'Purchasing Quantity Ordered - 16 Characters (10.4)
+'Purchasing Quantity Received - 16 Characters (10.4)
+'Purchasing Quantity Rejected - 16 Characters (10.4)
+'Extension Amount - 16 Characters (14.2)
+'Inventory Quantity Received - 16 Characters
+'Close PO Line - 1  Character (Y/N)
+'Continue Description -  1  Character (This is a custom field; leave blank.)
+'Received Quantity not Inspected - 16 Characters
+'Work Order Suffix - 3 Characters
+'Manufacturer Part Number - 23 Characters
+'Manufacturer Name - 23 Characters
+'Inventory Quantity Ordered - 16 Characters
+'Inventory Unit of Measure - 2 Characters
+'Filler - 6 Characters ("      ")
+'*Exchange Currency - 3 Characters
+'Exchange Extension - 16 Characters (14.2)
+'User 1 - 30 Characters
+'User 2 - 30 Characters
+'User 3 - 30 Characters
+'User 4 - 30 Characters
+'User 5 - 30 Characters
+'Exchange Date - 8 Characters (YYYYMMDD)
+'Exchange Cost - 16 Characters (10.6)
+'Exchange Rate - 16 Characters (5.5)
+'Requisition Line Number - 3 Characters
+'Requires Inspection Flag - 1 Character (Y/N)
+'Original Due Date - 8 Characters (YYYYMMDD. If left blank, Line Due Date populates Original Due Date)
+'Line Ship Date -  8  Characters (YYYYMMDD)
+'Shipped Quantity - 19 Characters (+-10.4)
+'Cost Source Code - 1 Character
+'	I - Inventory
+'	H - History
+'	V - Vendor Quote
+'	M - Manual
+'	O - Outside
+'Requires Testing Flag - 1 Character (Y/N)
+'Override Conversion Flag - 1 Character (Y/N)
+'Inventory Cost - 19 Characters (+-10.6)
+'Packing List Printed - 1 Character (Y/N)
+'GL Manually Entered - 1 Character (Y/N. Y will not allow the system to refresh the GL Account)
+'Receive to WO - 1 Character (Y/N)
+'Roll Quantity - 16 Characters (7.0)
+'Tax Code - 5 Characters
+'Vat Rule - 2 Characters
+'Book Use Tax - 1 Character
+'Fixed Asset - 6 Characters
+'Blanket PO Number - 7 Characters
+'Blanket PO Line - 4 Characters
+
+Program.Sub.Preflight.Start
+V.Global.bUPLPURORScreenless.Declare(Boolean,True)
+V.Global.sUPLPURORError.Declare(String)
+F.Data.DataTable.Create("UPLPURORA",True)
+F.Data.DataTable.AddColumn("UPLPURORA","PONum","String")
+F.Data.DataTable.AddColumn("UPLPURORA","Filler1","String","  ")
+F.Data.DataTable.AddColumn("UPLPURORA","RecType","String","A")
+F.Data.DataTable.AddColumn("UPLPURORA","OrderTaxCode","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORA","Insurance","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORA","BuyerCode","String","   ")
+F.Data.DataTable.AddColumn("UPLPURORA","Area","String","  ")
+F.Data.DataTable.AddColumn("UPLPURORA","Branch","String","  ")
+F.Data.DataTable.AddColumn("UPLPURORA","ShipVia","String","               ")
+F.Data.DataTable.AddColumn("UPLPURORA","FOBInfo","String","               ")
+F.Data.DataTable.AddColumn("UPLPURORA","Terms","String","            ")
+F.Data.DataTable.AddColumn("UPLPURORA","WONum","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORA","WOSeq","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORA","ReqNum","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORA","Dept","String","    ")
+F.Data.DataTable.AddColumn("UPLPURORA","SpecialInstructions11","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORA","SpecialInstructions12","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORA","SpecialInstructions13","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORA","Closed","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORA","SortCode","String","                    ")
+F.Data.DataTable.AddColumn("UPLPURORA","ShipCode","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORA","POOrderDate","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORA","DateRequried","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORA","DueDate","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORA","PartPaid","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORA","NormGLAcct","String","               ")
+F.Data.DataTable.AddColumn("UPLPURORA","AcctClosed","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORA","SBPaid","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORA","Print","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORA","WOSuffix","String","   ")
+F.Data.DataTable.AddColumn("UPLPURORA","PORevNum","String","  ")
+F.Data.DataTable.AddColumn("UPLPURORA","VendNum","String")
+F.Data.DataTable.AddColumn("UPLPURORA","CertReq","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORA","TaxCode","String","     ")
+F.Data.DataTable.AddColumn("UPLPURORA","VATRule","String","  ")
+F.Data.DataTable.AddColumn("UPLPURORA","BookUseTax","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORA","Filler2","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORA","NewTextFormat","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORA","PrevSeq","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORA","ChangeDate","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORA","DiffDueDate","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORA","User1","String","                                    ")
+F.Data.DataTable.AddColumn("UPLPURORA","User2","String","                                    ")
+F.Data.DataTable.AddColumn("UPLPURORA","PODiscount","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORA","PhysicalAndChemCertFlag","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORA","FreightVendID","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORA","CustomVendID","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORA","ShipDate","String","        ")
+
+F.Data.DataTable.Create("UPLPURORBC",True)
+F.Data.DataTable.AddColumn("UPLPURORBC","PONum","String")
+F.Data.DataTable.AddColumn("UPLPURORBC","Filler1","String","  ")
+F.Data.DataTable.AddColumn("UPLPURORBC","RecType","String")
+F.Data.DataTable.AddColumn("UPLPURORBC","VendName","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORBC","VendAddr1","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORBC","VendAddr2","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORBC","VendAddr3","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORBC","VendAddr4","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORBC","VendAddr5","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORBC","VendCity","String","                    ")
+F.Data.DataTable.AddColumn("UPLPURORBC","VendState","String","  ")
+F.Data.DataTable.AddColumn("UPLPURORBC","VendZip","String","             ")
+F.Data.DataTable.AddColumn("UPLPURORBC","VendCountry","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORBC","VendAttn","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORBC","SpecialInstructions21","String","                    ")
+F.Data.DataTable.AddColumn("UPLPURORBC","SpecialInstructions22","String","                    ")
+F.Data.DataTable.AddColumn("UPLPURORBC","SpecialInstructions23","String","                    ")
+F.Data.DataTable.AddColumn("UPLPURORBC","Filler2","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORBC","ShipToSeq","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORBC","ContactName","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORBC","ContactEmail","String","                                                                                                    ")
+F.Data.DataTable.AddColumn("UPLPURORBC","ContactPhone","String","                    ")
+F.Data.DataTable.AddColumn("UPLPURORBC","IntlFlag","String"," ")
+
+F.Data.DataTable.Create("UPLPURORL",True)
+F.Data.DataTable.AddColumn("UPLPURORL","PONum","String")
+F.Data.DataTable.AddColumn("UPLPURORL","RecType","String")
+F.Data.DataTable.AddColumn("UPLPURORL","PartNum","String")
+F.Data.DataTable.AddColumn("UPLPURORL","PartLoc","String","  ")
+F.Data.DataTable.AddColumn("UPLPURORL","PartDesc","String")
+F.Data.DataTable.AddColumn("UPLPURORL","POUM","String")
+F.Data.DataTable.AddColumn("UPLPURORL","AcctClosed","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORL","WONum","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORL","WOSeq","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORL","ReqNum","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORL","Dept","String","    ")
+F.Data.DataTable.AddColumn("UPLPURORL","TaxStatus","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORL","SortCode","String","            ")
+F.Data.DataTable.AddColumn("UPLPURORL","GLAcct","String","               ")
+F.Data.DataTable.AddColumn("UPLPURORL","InvBin","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORL","PL","String","  ")
+F.Data.DataTable.AddColumn("UPLPURORL","Filler1","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORL","DueDate","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORL","LastReceiptDate","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORL","PurchCost","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORL","Discount","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORL","PurchQtyOrdered","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORL","PurchQtyReceived","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORL","PurchQtyRejected","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORL","ExtAmount","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORL","InvQtyReceived","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORL","ClosePOLine","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORL","ContinueDescription","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORL","RcvdQtyNotInspected","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORL","WOSuffix","String","   ")
+F.Data.DataTable.AddColumn("UPLPURORL","MfgPartNum","String","                       ")
+F.Data.DataTable.AddColumn("UPLPURORL","MfgName","String","                       ")
+F.Data.DataTable.AddColumn("UPLPURORL","InvQtyOrdered","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORL","InvUM","String","  ")
+F.Data.DataTable.AddColumn("UPLPURORL","Filler2","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORL","ExchCurr","String")
+F.Data.DataTable.AddColumn("UPLPURORL","ExchExt","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORL","User1","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORL","User2","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORL","User3","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORL","User4","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORL","User5","String","                              ")
+F.Data.DataTable.AddColumn("UPLPURORL","ExchDate","String","        ")
+F.Data.DataTable.AddColumn("UPLPURORL","ExchCost","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORL","ExchRate","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORL","ReqLineNum","String","   ")
+F.Data.DataTable.AddColumn("UPLPURORL","InspectionFlag","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORL","OrigDueDate","String","        ")
+F.Data.DataTable.AddColumn("UPLPURORL","LineShipDate","String","        ")
+F.Data.DataTable.AddColumn("UPLPURORL","ShippedQty","String","                   ")
+F.Data.DataTable.AddColumn("UPLPURORL","CostSource","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORL","ReqTesting","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORL","OverrideConv","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORL","InvCost","String","                   ")
+F.Data.DataTable.AddColumn("UPLPURORL","PackingListPrinted","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORL","GLManuallyEntered","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORL","ReceivedToWO","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORL","RolLQty","String","                ")
+F.Data.DataTable.AddColumn("UPLPURORL","TaxCode","String","     ")
+F.Data.DataTable.AddColumn("UPLPURORL","VatRule","String","  ")
+F.Data.DataTable.AddColumn("UPLPURORL","BookUseTax","String"," ")
+F.Data.DataTable.AddColumn("UPLPURORL","FixedAsset","String","      ")
+F.Data.DataTable.AddColumn("UPLPURORL","BlanketPONum","String","       ")
+F.Data.DataTable.AddColumn("UPLPURORL","BlanketPOLine","String","    ")
+Program.Sub.Preflight.End
+
+Program.Sub.UPLPUROR.Start
+F.Intrinsic.Control.Try
+	V.Local.sARecords.Declare(String)
+	V.Local.sBCRecords.Declare(String)
+	V.Local.sLRecords.Declare(String)
+	V.Local.sAllRecords.Declare(String)
+	V.Local.sFilePath.Declare(String)
+	V.Local.sRet.Declare(String)
+	V.Local.iCount.Declare(Long)
+	v.Local.iHandle.Declare(long)
+
+	F.Intrinsic.String.Build("{0}\PUORD{1}.TXT",V.Caller.FilesDir,V.Caller.CompanyCode,V.Local.sFilePath)
+
+	'Create Dataviews, copy them to a string with a column delimiter of "" and a row delimiter of new line, then close dataviews
+	F.Intrinsic.Control.If(V.DataTable.UPLPURORA.RowCount,>,0)
+		'Format values in each row as needed by file format
+		F.Intrinsic.Control.For(V.Local.iCount,0,V.DataTable.UPLPURORA.RowCount--,1)
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).PONum!FieldVal," ",7,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"PONum",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).Filler1!FieldVal," ",2,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"Filler1",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).OrderTaxCode!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"OrderTaxCode",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).Insurance!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"Insurance",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).BuyerCode!FieldVal," ",3,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"BuyerCode",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).Area!FieldVal," ",2,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"Area",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).Branch!FieldVal," ",2,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"Branch",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).ShipVia!FieldVal," ",15,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"ShipVia",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).FOBInfo!FieldVal," ",15,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"FOBInfo",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).Terms!FieldVal," ",12,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"Terms",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).WONum!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"WONum",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).WOSeq!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"WOSeq",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).ReqNum!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"ReqNum",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).Dept!FieldVal," ",4,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"Dept",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).SpecialInstructions11!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"SpecialInstructions11",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).SpecialInstructions12!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"SpecialInstructions12",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).SpecialInstructions13!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"SpecialInstructions13",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).Closed!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"Closed",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).SortCode!FieldVal," ",20,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"SortCode",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).ShipCode!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"ShipCode",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).POOrderDate!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"POOrderDate",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).DateRequried!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"DateRequried",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).DueDate!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"DueDate",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORA(V.Local.iCount).PartPaid!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"PartPaid",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).NormGLAcct!FieldVal," ",15,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"NormGLAcct",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).AcctClosed!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"AcctClosed",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORA(V.Local.iCount).SBPaid!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"SBPaid",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).Print!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"Print",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).WOSuffix!FieldVal," ",3,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"WOSuffix",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).PORevNum!FieldVal," ",2,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"PORevNum",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).VendNum!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"VendNum",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).CertReq!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"CertReq",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).TaxCode!FieldVal," ",5,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"TaxCode",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).VATRule!FieldVal," ",2,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"VATRule",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).BookUseTax!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"BookUseTax",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).Filler2!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"Filler2",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).NewTextFormat!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"NewTextFormat",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).PrevSeq!FieldVal," ",2,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"PrevSeq",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).ChangeDate!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"ChangeDate",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).DiffDueDate!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"DiffDueDate",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).User1!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"User1",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).User2!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"User2",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORA(V.Local.iCount).PODiscount!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"PODiscount",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).PhysicalAndChemCertFlag!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"PhysicalAndChemCertFlag",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).FreightVendID!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"FreightVendID",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).CustomVendID!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"CustomVendID",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORA(V.Local.iCount).ShipDate!FieldVal," ",8,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORA",V.Local.iCount,"ShipDate",V.Local.sRet)
+
+		F.Intrinsic.Control.Next(V.Local.iCount)
+
+		F.Data.DataView.Create("UPLPURORA","ARecordView",22)
+		F.Data.DataView.ToString("UPLPURORA","ARecordView","",V.Ambient.NewLine,V.Local.sARecords)
+		F.Data.DataView.Close("UPLPURORA","ARecordView")
+	F.Intrinsic.Control.EndIf
+
+	F.Intrinsic.Control.If(V.DataTable.UPLPURORBC.RowCount,>,0)
+		'Format values in each row as needed by file format
+		F.Intrinsic.Control.For(V.Local.iCount,0,V.DataTable.UPLPURORBC.RowCount--,1)
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).PONum!FieldVal," ",7,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"PONum",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).Filler1!FieldVal," ",2,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"Filler1",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).RecType!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"RecType",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).VendName!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"VendName",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).VendAddr1!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"VendAddr1",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).VendAddr2!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"VendAddr2",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).VendAddr3!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"VendAddr3",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).VendAddr4!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"VendAddr4",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).VendAddr5!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"VendAddr5",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).VendCity!FieldVal," ",20,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"VendCity",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).VendState!FieldVal," ",2,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"VendState",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).VendZip!FieldVal," ",13,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"VendZip",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).VendCountry!FieldVal," ",12,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"VendCountry",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).VendAttn!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"VendAttn",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).SpecialInstructions21!FieldVal," ",20,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"SpecialInstructions21",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).SpecialInstructions22!FieldVal," ",20,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"SpecialInstructions22",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).SpecialInstructions23!FieldVal," ",20,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"SpecialInstructions23",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).Filler2!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"Filler2",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).ShipToSeq!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"ShipToSeq",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).ContactName!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"ContactName",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).ContactEmail!FieldVal," ",100,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"ContactEmail",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).ContactPhone!FieldVal," ",20,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"ContactPhone",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORBC(V.Local.iCount).IntlFlag!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORBC",V.Local.iCount,"IntlFlag",V.Local.sRet)
+
+		F.Intrinsic.Control.Next(V.Local.iCount)
+
+		F.Data.DataView.Create("UPLPURORBC","BCRecordView",22)
+		F.Data.DataView.ToString("UPLPURORBC","BCRecordView","",V.Ambient.NewLine,V.Local.sBCRecords)
+		F.Data.DataView.Close("UPLPURORBC","BCRecordView")
+	F.Intrinsic.Control.EndIf
+
+	F.Intrinsic.Control.If(V.DataTable.UPLPURORL.RowCount,>,0)
+		'Format values in each row as needed by file format
+		F.Intrinsic.Control.For(V.Local.iCount,0,V.DataTable.UPLPURORL.RowCount--,1)
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).PONum!FieldVal,"0",7,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"PONum",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).RecType!FieldVal,"0",3,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"RecType",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).PartNum!FieldVal," ",20,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"PartNum",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).PartLoc!FieldVal," ",2,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"PartLoc",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).PartDesc!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"PartDesc",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).POUM!FieldVal," ",2,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"POUM",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).AcctClosed!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"AcctClosed",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).WONum!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"WONum",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).WOSeq!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"WOSeq",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).ReqNum!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"ReqNum",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).Dept!FieldVal," ",4,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"Dept",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).TaxStatus!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"TaxStatus",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).SortCode!FieldVal," ",12,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"SortCode",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).GLAcct!FieldVal," ",15,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"GLAcct",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).InvBin!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"InvBin",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).PL!FieldVal," ",2,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"PL",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).Filler1!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"Filler1",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).DueDate!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"DueDate",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).LastReceiptDate!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"LastReceiptDate",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).PurchCost!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"PurchCost",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).Discount!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"Discount",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).PurchQtyOrdered!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"PurchQtyOrdered",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).PurchQtyReceived!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"PurchQtyReceived",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).PurchQtyRejected!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"PurchQtyRejected",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).ExtAmount!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"ExtAmount",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).InvQtyReceived!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"InvQtyReceived",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).ClosePOLine!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"ClosePOLine",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).ContinueDescription!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"ContinueDescription",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).RcvdQtyNotInspected!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"RcvdQtyNotInspected",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).WOSuffix!FieldVal," ",3,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"WOSuffix",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).MfgPartNum!FieldVal," ",23,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"MfgPartNum",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).MfgName!FieldVal," ",23,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"MfgName",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).InvQtyOrdered!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"InvQtyOrdered",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).InvUM!FieldVal," ",2,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"InvUM",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).Filler2!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"Filler2",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).ExchExt!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"ExchExt",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).User1!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"User1",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).User2!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"User2",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).User3!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"User3",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).User4!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"User4",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).User5!FieldVal," ",30,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"User5",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).ExchDate!FieldVal," ",8,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"ExchDate",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).ExchCost!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"ExchCost",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).ExchRate!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"ExchRate",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).ReqLineNum!FieldVal," ",3,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"ReqLineNum",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).InspectionFlag!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"InspectionFlag",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).OrigDueDate!FieldVal," ",8,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"OrigDueDate",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).LineShipDate!FieldVal," ",8,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"LineShipDate",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).ShippedQty!FieldVal," ",19,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"ShippedQty",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).CostSource!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"CostSource",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).ReqTesting!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"ReqTesting",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).OverrideConv!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"OverrideConv",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).InvCost!FieldVal," ",19,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"InvCost",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).PackingListPrinted!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"PackingListPrinted",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).GLManuallyEntered!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"GLManuallyEntered",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).ReceivedToWO!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"ReceivedToWO",V.Local.sRet)
+
+			F.Intrinsic.String.LPad(V.DataTable.UPLPURORL(V.Local.iCount).RollQty!FieldVal," ",16,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"RollQty",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).TaxCode!FieldVal," ",5,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"TaxCode",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).VatRule!FieldVal," ",2,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"VatRule",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).BookUseTax!FieldVal," ",1,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"BookUseTax",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).FixedAsset!FieldVal," ",6,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"FixedAsset",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).BlanketPONum!FieldVal," ",7,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"BlanketPONum",V.Local.sRet)
+
+			F.Intrinsic.String.RPad(V.DataTable.UPLPURORL(V.Local.iCount).BlanketPOLine!FieldVal," ",4,V.Local.sRet)
+			F.Data.DataTable.SetValue("UPLPURORL",V.Local.iCount,"BlanketPOLine",V.Local.sRet)
+
+		F.Intrinsic.Control.Next(V.Local.iCount)
+
+		F.Data.DataView.Create("UPLPURORL","LRecordView",22)
+		F.Data.DataView.ToString("UPLPURORL","LRecordView","",V.Ambient.NewLine,V.Local.sLRecords)
+		F.Data.DataView.Close("UPLPURORL","LRecordView")
+	F.Intrinsic.Control.EndIf
+
+	'Build the individual record-type strings to a single final string 
+	F.Intrinsic.Control.If(V.Local.sARecords,!=,"")
+		V.Local.sAllRecords.Set(V.Local.sARecords)
+	F.Intrinsic.Control.EndIf
+
+	F.Intrinsic.Control.If(V.Local.sBCRecords,!=,"")
+		F.Intrinsic.Control.If(V.Local.sAllRecords,=,"")
+			V.Local.sAllRecords.Set(V.Local.sBCRecords)
+		F.Intrinsic.Control.Else
+			F.Intrinsic.String.Build("{0}{1}{2}",V.Local.sAllRecords,V.Ambient.NewLine,V.Local.sBCRecords,V.Local.sAllRecords)
+		F.Intrinsic.Control.EndIf
+	F.Intrinsic.Control.EndIf
+
+	F.Intrinsic.Control.If(V.Local.sLRecords,!=,"")
+		F.Intrinsic.Control.If(V.Local.sAllRecords,=,"")
+			V.Local.sAllRecords.Set(V.Local.sLRecords)
+		F.Intrinsic.Control.Else
+			F.Intrinsic.String.Build("{0}{1}{2}",V.Local.sAllRecords,V.Ambient.NewLine,V.Local.sLRecords,V.Local.sAllRecords)
+		F.Intrinsic.Control.EndIf
+	F.Intrinsic.Control.EndIf
+
+	'Verify at least one record exists, then write final string to file and call the necessary call wrapper
+	F.Intrinsic.Control.If(V.Local.sAllRecords,!=,"")
+
+		'F.Intrinsic.File.String2File(V.Local.sFilePath,V.Local.sAllRecords,3)
+
+		f.Intrinsic.File.GetHandle(v.local.iHandle)
+		f.Intrinsic.File.OpenForWrite(v.Local.sFilePath,v.local.iHandle)
+		f.Intrinsic.File.WriteLine(v.Local.iHandle,v.Local.sAllRecords)
+		f.Intrinsic.File.CloseFile(v.Local.iHandle)
+
+		'Call callwrapper accoring to how programmer defined
+		F.Intrinsic.Control.SelectCase(V.Args.CallWrapperType)
+			F.Intrinsic.Control.Case(0)
+
+				F.Intrinsic.Control.If(V.Global.bUPLPURORScreenless,=,True)
+					F.Global.General.CallWrapperSync(50,"UPLPUROR/U")
+				F.Intrinsic.Control.Else
+					F.Global.General.CallWrapperSync(50,"UPLPUROR/A")
+				F.Intrinsic.Control.EndIf
+
+			F.Intrinsic.Control.Case(1)
+
+				F.Intrinsic.Control.If(V.Global.bUPLPURORScreenless,=,True)
+					F.Global.General.CallWrapperAsync(50,"UPLPUROR/U")
+				F.Intrinsic.Control.Else
+					F.Global.General.CallWrapperAsync(50,"UPLPUROR/A")
+				F.Intrinsic.Control.EndIf
+
+		F.Intrinsic.Control.EndSelect
+
+	F.Intrinsic.Control.EndIf
+
+	F.Data.DataTable.DeleteRow("UPLPURORA")
+	F.Data.DataTable.DeleteRow("UPLPURORBC")
+	F.Data.DataTable.DeleteRow("UPLPURORL")
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(CatchErrorUPLPUROR, "Sub",V.Ambient.CurrentSubroutine,"ErrNo",V.Ambient.ErrorNumber,"ErrDesc",V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.UPLPUROR.End
+
+'Calls UPLPUROR with callwrapper type of 0
+Program.Sub.UPLPURORSync.Start
+F.Intrinsic.Control.Try
+	F.Intrinsic.Control.CallSub(UPLPUROR,"CallWrapperType",0)
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(CatchErrorUPLPUROR, "Sub",V.Ambient.CurrentSubroutine,"ErrNo",V.Ambient.ErrorNumber,"ErrDesc",V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.UPLPURORSync.End
+
+'Calls UPLPUROR with callwrapper type of 1
+Program.Sub.UPLPURORAsync.Start
+F.Intrinsic.Control.Try
+	F.Intrinsic.Control.CallSub(UPLPUROR,"CallWrapperType",1)
+F.Intrinsic.Control.Catch
+	F.Intrinsic.Control.CallSub(CatchErrorUPLPUROR, "Sub",V.Ambient.CurrentSubroutine,"ErrNo",V.Ambient.ErrorNumber,"ErrDesc",V.Ambient.ErrorDescription)
+F.Intrinsic.Control.EndTry
+Program.Sub.UPLPURORAsync.End
+
+Program.Sub.CatchErrorUPLPUROR.Start
+F.Intrinsic.String.Build("{0}*!*{1}*!*{2}", V.Args.Sub, V.Args.ErrNo, V.Args.ErrDesc, V.Global.sUPLPURORError)
+Program.Sub.CatchErrorUPLPUROR.End
+
+Program.Sub.Comments.Start
+${$0$}$$}$$}$12:00:00 am$}$False
+Program.Sub.Comments.End
